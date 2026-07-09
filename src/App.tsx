@@ -1,36 +1,55 @@
-import { useEffect, useState } from 'react';
-import { db } from './firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { useEffect, useState } from 'react'
+import { db } from './firebase'
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
+import AddTrip from './AddTrip'
 
-function App() {
-  const [trips, setTrips] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchTrips = async () => {
-      const querySnapshot = await getDocs(collection(db, "trips"));
-      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setTrips(data);
-    };
-    fetchTrips();
-  }, []);
-
-  return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>TravelWithShubham 🌍</h1>
-      <div style={{ display: 'grid', gap: '15px' }}>
-        {trips.length === 0 ? (
-          <p>अभी कोई ट्रिप नहीं है।</p>
-        ) : (
-          trips.map((trip: any) => (
-            <div key={trip.id} style={{ border: '1px solid #ddd', padding: '10px', borderRadius: '8px' }}>
-              <h2>{trip.location}</h2>
-              <p>{trip.date}</p>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
+interface Trip {
+  id: string
+  title: string
+  location: string
+  date: string
 }
 
-export default App;
+export default function App() {
+  const [trips, setTrips] = useState<Trip[]>([])
+
+  useEffect(() => {
+    const q = query(collection(db, 'trips'), orderBy('date', 'desc'))
+    const unsub = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Trip[]
+      setTrips(data)
+    })
+    return () => unsub()
+  }, [])
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>TravelWithShubham 🌍</h1>
+
+      <AddTrip />
+
+      <h2 style={{ marginTop: 30 }}>Trips</h2>
+      {trips.length === 0 && <p>अभी कोई ट्रिप नहीं है।</p>}
+      <div style={{ display: 'grid', gap: 12, marginTop: 12 }}>
+        {trips.map((trip) => (
+          <div
+            key={trip.id}
+            style={{
+              border: '1px solid #333',
+              borderRadius: 10,
+              padding: 16,
+              background: '#111',
+            }}
+          >
+            <h3>{trip.title}</h3>
+            <p>📍 {trip.location}</p>
+            <p>📅 {trip.date}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
