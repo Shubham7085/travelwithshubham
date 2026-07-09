@@ -1,12 +1,102 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TravelWithShubham</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel With Shubham</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-950 text-white font-sans">
+
+    <nav class="flex justify-between items-center px-6 py-4 bg-gray-900 border-b border-gray-800">
+        <div class="text-xl font-bold flex items-center"><i class="fas fa-mountain mr-2 text-blue-400"></i>Travel with Shubham</div>
+        <div class="hidden md:flex space-x-6 text-sm">
+            <a href="#" class="hover:text-blue-400">Home</a>
+            <a href="#" class="hover:text-blue-400">Trips</a>
+            <a href="#" class="hover:text-blue-400">Destinations</a>
+            <a href="#" class="hover:text-blue-400">Gallery</a>
+        </div>
+        <button class="bg-blue-600 px-4 py-2 rounded-full text-sm hover:bg-blue-700">Admin Login</button>
+    </nav>
+
+    <header class="relative h-[60vh] flex items-center justify-center text-center bg-gray-800">
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+        <div class="relative z-10 px-4">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">ONE JOURNEY AT A TIME</h1>
+            <p class="mb-8">Travel. Explore. Experience. Memories that last forever.</p>
+            <div class="bg-white p-2 rounded-full flex items-center w-full max-w-md mx-auto">
+                <input type="text" placeholder="Search trips, places, or keywords..." class="w-full text-gray-900 px-4 outline-none">
+                <button class="bg-blue-500 text-white px-6 py-2 rounded-full">Search</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 px-6 py-8 border-b border-gray-800">
+        <div class="text-center"><div class="text-2xl font-bold">25+</div><div>Trips</div></div>
+        <div class="text-center"><div class="text-2xl font-bold">18+</div><div>States</div></div>
+        <div class="text-center"><div class="text-2xl font-bold">3500+</div><div>Photos</div></div>
+        <div class="text-center"><div class="text-2xl font-bold">250+</div><div>Videos</div></div>
+        <div class="text-center"><div class="text-2xl font-bold">40K+</div><div>Kilometers</div></div>
+    </div>
+
+    <section class="px-6 py-12">
+        <h2 class="text-2xl font-bold mb-6">Popular Destinations</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-gray-800 rounded-xl overflow-hidden group hover:scale-105 transition">
+                <img src="https://images.unsplash.com/photo-1599639682701-38e937d579ef?w=400" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <h3 class="font-bold">Manali</h3>
+                    <p class="text-gray-400 text-sm">24 Photos • 5 Videos</p>
+                </div>
+            </div>
+            <div class="bg-gray-800 rounded-xl overflow-hidden group hover:scale-105 transition">
+                <img src="https://images.unsplash.com/photo-1544735716-397424fcde75?w=400" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <h3 class="font-bold">Gangtok</h3>
+                    <p class="text-gray-400 text-sm">18 Photos • 4 Videos</p>
+                </div>
+            </div>
+            <div class="bg-gray-800 rounded-xl overflow-hidden group hover:scale-105 transition">
+                <img src="https://images.unsplash.com/photo-1563298723-dcfebaa3c2e3?w=400" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <h3 class="font-bold">Darjeeling</h3>
+                    <p class="text-gray-400 text-sm">20 Photos • 6 Videos</p>
+                </div>
+            </div>
+            <div class="bg-gray-800 rounded-xl overflow-hidden group hover:scale-105 transition">
+                <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <h3 class="font-bold">Meghalaya</h3>
+                    <p class="text-gray-400 text-sm">22 Photos • 6 Videos</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="px-6 py-12 bg-gray-900">
+        <h2 class="text-2xl font-bold mb-6">Explore By Category</h2>
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+            <div class="bg-gray-800 p-6 rounded-lg text-center hover:bg-blue-600 transition">
+                <i class="fas fa-mountain text-2xl mb-2"></i><p>Mountains</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg text-center hover:bg-blue-600 transition">
+                <i class="fas fa-water text-2xl mb-2"></i><p>Waterfalls</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg text-center hover:bg-blue-600 transition">
+                <i class="fas fa-landmark text-2xl mb-2"></i><p>Temples</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg text-center hover:bg-blue-600 transition">
+                <i class="fas fa-umbrella-beach text-2xl mb-2"></i><p>Beaches</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg text-center hover:bg-blue-600 transition">
+                <i class="fas fa-road text-2xl mb-2"></i><p>Road Trips</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg text-center hover:bg-blue-600 transition">
+                <i class="fas fa-hiking text-2xl mb-2"></i><p>Trekking</p>
+            </div>
+        </div>
+    </section>
+
+</body>
 </html>
