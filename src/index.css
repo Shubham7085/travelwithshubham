@@ -1,2 +1,10 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: system-ui, sans-serif; background: #0a0e17; color: #fff; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: radial-gradient(circle at top, #0d1420 0%, #070B14 60%);
+  color: #fff;
+  min-height: 100vh;
+}
+
+::selection { background: #00F0FF44; }
