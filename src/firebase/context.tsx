@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  User, 
-  onAuthStateChanged, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
-  signOut 
+import {
+  User,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  signOut
 } from 'firebase/auth';
 import { auth } from './config';
 
@@ -23,36 +24,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          console.log("Signed in:", result.user.email);
+        }
+      })
+      .catch((error) => {
+        console.error("Redirect Error:", error.code, error.message);
+      });
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: "select_account",
+    });
+
     try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
+      await signInWithRedirect(auth, provider);
+    } catch (error: any) {
+      console.error("Google Login Error:", error.code, error.message);
       throw error;
     }
   };
 
   const logout = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error('Error signing out:', error);
-      throw error;
-    }
+    await signOut(auth);
   };
 
-  const isAdmin = !!(user && user.email === 'shubhamnagvanshi84823@gmail.com');
+  const isAdmin = user?.email === "shubhamnagvanshi84823@gmail.com";
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, loading, loginWithGoogle, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAdmin,
+        loading,
+        loginWithGoogle,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -60,8 +79,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
