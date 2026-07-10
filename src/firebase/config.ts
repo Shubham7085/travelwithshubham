@@ -6,7 +6,7 @@ import firebaseConfig from '@/firebase-applet-config.json';
 const app = initializeApp(firebaseConfig);
 const dbId = (firebaseConfig as any).firestoreDatabaseId;
 export const db = dbId && dbId !== '(default)' ? getFirestore(app, dbId) : getFirestore(app);
-export const auth = getAuth();
+export const auth = getAuth(app);
 
 // Error handling required by the Firebase Integration Skill
 export enum OperationType {
