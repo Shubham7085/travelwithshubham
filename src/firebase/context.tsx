@@ -3,9 +3,8 @@ import {
   User,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
-  signOut
+  signInWithPopup,
+  signOut,
 } from 'firebase/auth';
 import { auth } from './config';
 
@@ -24,16 +23,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          console.log("Signed in:", result.user.email);
-        }
-      })
-      .catch((error) => {
-        console.error("Redirect Error:", error.code, error.message);
-      });
-
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -44,14 +33,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+
     provider.setCustomParameters({
-      prompt: "select_account",
+      prompt: 'select_account',
     });
 
     try {
-      await signInWithRedirect(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      console.log('Google Login Success:', result.user.email);
     } catch (error: any) {
-      console.error("Google Login Error:", error.code, error.message);
+      console.error('Google Login Error:', error.code);
+      console.error(error.message);
       throw error;
     }
   };
@@ -60,7 +52,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await signOut(auth);
   };
 
-  const isAdmin = user?.email === "shubhamnagvanshi84823@gmail.com";
+  const isAdmin =
+    user?.email?.toLowerCase() ===
+    'shubhamnagvanshi84823@gmail.com'.toLowerCase();
 
   return (
     <AuthContext.Provider
@@ -79,6 +73,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within an AuthProvider");
+
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+
   return context;
 };
