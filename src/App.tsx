@@ -1,39 +1,64 @@
-import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
-import MainLayout from './layout/MainLayout';
-import Loader from './components/common/Loader';
+import { useEffect, useState } from 'react'
+import { db } from './firebase'
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
+import AddTrip from './AddTrip'
 
-// Lazy loading for performance and code-splitting
-const Home = lazy(() => import('./pages/Home'));
-const Trips = lazy(() => import('./pages/Trips'));
-const Gallery = lazy(() => import('./pages/Gallery'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-
-const AnimatedRoutes = () => {
-  const location = useLocation();
-  
-  return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/trips" element={<Trips />} />
-          <Route path="/gallery" element={<Gallery />} />
-        </Route>
-        {/* Admin requires separate layout/protection */}
-        <Route path="/admin" element={<AdminDashboard />} />
-      </Routes>
-    </AnimatePresence>
-  );
-};
+interface Trip {
+  id: string
+  title: string
+  location: string
+  date: string
+}
 
 export default function App() {
+  const [trips, setTrips] = useState<Trip[]>([])
+
+  useEffect(() => {
+    const q = query(collection(db, 'trips'), orderBy('date', 'desc'))
+    const unsub = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Trip[]
+      setTrips(data)
+    })
+    return () => unsub()
+  }, [])
+
   return (
-    <BrowserRouter>
-      <Suspense fallback={<Loader />}>
-        <AnimatedRoutes />
-      </Suspense>
-    </BrowserRouter>
-  );
+    <>
+      <div className="hero">
+        <div className="eyebrow">Personal Travel Log · Est. 2024</div>
+        <h1>
+          Travel<em>With</em>Shubham
+        </h1>
+        <p>पहाड़ों की कहानियाँ, एक-एक ट्रिप के साथ</p>
+      </div>
+
+      <div className="container">
+        <AddTrip />
+
+        <div className="section-label">Trip Log</div>
+
+        {trips.length === 0 && (
+          <div className="empty-state">अभी कोई ट्रिप दर्ज नहीं हुई है।</div>
+        )}
+
+        {trips.map((trip, i) => (
+          <div key={trip.id} className="trip-card">
+            <div className="trip-main">
+              <h3>{trip.title}</h3>
+              <div className="trip-tags">
+                <span className="trip-tag">📍 {trip.location}</span>
+                <span className="trip-tag">{trip.date}</span>
+              </div>
+            </div>
+            <div className="trip-stub">
+              <span>№{String(trips.length - i).padStart(2, '0')}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  )
 }
