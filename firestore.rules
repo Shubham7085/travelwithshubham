@@ -1,0 +1,161 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reusable, hardened global helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'shubhamnagvanshi84823@gmail.com' ||
+        request.auth.uid == 'H9LEqj3HyRWvOF9vngwAnRfXVPQ2'
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Entity validation helpers (Pillar 2: Validation Blueprints)
+    function isValidTrip(data) {
+      return data.keys().hasAll(['id', 'title', 'location', 'duration', 'coverImage', 'state', 'photosCount', 'videosCount', 'distance'])
+        && data.keys().size() <= 12
+        && data.id is string && data.id.size() <= 128
+        && data.title is string && data.title.size() <= 100
+        && data.location is string && data.location.size() <= 100
+        && data.duration is string && data.duration.size() <= 50
+        && data.coverImage is string && data.coverImage.size() <= 2048
+        && data.state is string && data.state.size() <= 50
+        && data.photosCount is number && data.photosCount >= 0
+        && data.videosCount is number && data.videosCount >= 0
+        && data.distance is number && data.distance >= 0
+        && (!('description' in data) || (data.description is string && data.description.size() <= 2000))
+        && (!('startDate' in data) || (data.startDate is string && data.startDate.size() <= 50))
+        && (!('tags' in data) || (data.tags is list && data.tags.size() <= 15));
+    }
+
+    function isValidPhoto(data) {
+      return data.keys().hasAll(['id', 'tripId', 'url', 'createdAt', 'isFeatured'])
+        && data.keys().size() <= 7
+        && data.id is string && data.id.size() <= 128
+        && data.tripId is string && data.tripId.size() <= 128
+        && data.url is string && data.url.size() <= 2048
+        && data.createdAt is string && data.createdAt.size() <= 50
+        && data.isFeatured is bool
+        && (!('caption' in data) || (data.caption is string && data.caption.size() <= 500))
+        && (!('location' in data) || (data.location is string && data.location.size() <= 100));
+    }
+
+    function isValidVideo(data) {
+      return data.keys().hasAll(['id', 'tripId', 'url', 'title', 'createdAt', 'thumbnail', 'duration'])
+        && data.keys().size() <= 8
+        && data.id is string && data.id.size() <= 128
+        && data.tripId is string && data.tripId.size() <= 128
+        && data.url is string && data.url.size() <= 2048
+        && data.title is string && data.title.size() <= 100
+        && data.createdAt is string && data.createdAt.size() <= 50
+        && data.thumbnail is string && data.thumbnail.size() <= 2048
+        && data.duration is string && data.duration.size() <= 50
+        && (!('caption' in data) || (data.caption is string && data.caption.size() <= 500));
+    }
+
+    function isValidStats(data) {
+      return data.keys().hasAll(['trips', 'photos', 'videos', 'states', 'distance', 'yearsExploring'])
+        && data.keys().size() == 6
+        && data.trips is number && data.trips >= 0
+        && data.photos is number && data.photos >= 0
+        && data.videos is number && data.videos >= 0
+        && data.states is number && data.states >= 0
+        && data.distance is number && data.distance >= 0
+        && data.yearsExploring is number && data.yearsExploring >= 0;
+    }
+
+    function isValidDriveConfig(data) {
+      return data.keys().hasAll(['id', 'name', 'email', 'rootFolderId', 'totalStorage', 'usedStorage', 'remainingStorage', 'healthStatus', 'connectedStatus', 'lastSyncTime'])
+        && data.keys().size() == 10
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 100
+        && data.email is string && data.email.size() <= 256
+        && data.rootFolderId is string && data.rootFolderId.size() <= 128
+        && data.totalStorage is number && data.totalStorage >= 0
+        && data.usedStorage is number && data.usedStorage >= 0
+        && data.remainingStorage is number && data.remainingStorage >= 0
+        && data.healthStatus is string && (data.healthStatus == 'healthy' || data.healthStatus == 'degraded' || data.healthStatus == 'offline')
+        && data.connectedStatus is string && (data.connectedStatus == 'connected' || data.connectedStatus == 'disconnected')
+        && data.lastSyncTime is string && data.lastSyncTime.size() <= 50;
+    }
+
+    function isValidMediaReference(data) {
+      return data.keys().hasAll(['id', 'fileName', 'tripId', 'driveId', 'folderId', 'fileId', 'downloadUrl', 'thumbnailUrl', 'mimeType', 'fileSize', 'createdAt'])
+        && data.keys().size() <= 13
+        && data.id is string && data.id.size() <= 128
+        && data.fileName is string && data.fileName.size() <= 256
+        && data.tripId is string && data.tripId.size() <= 128
+        && data.driveId is string && data.driveId.size() <= 128
+        && data.folderId is string && data.folderId.size() <= 128
+        && data.fileId is string && data.fileId.size() <= 128
+        && data.downloadUrl is string && data.downloadUrl.size() <= 2048
+        && data.thumbnailUrl is string && data.thumbnailUrl.size() <= 2048
+        && data.mimeType is string && data.mimeType.size() <= 100
+        && data.fileSize is number && data.fileSize >= 0
+        && data.createdAt is string && data.createdAt.size() <= 50
+        && (!('caption' in data) || (data.caption is string && data.caption.size() <= 500))
+        && (!('location' in data) || (data.location is string && data.location.size() <= 100));
+    }
+
+    // Rules matching
+    match /trips/{tripId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(tripId) && isValidTrip(incoming()) && incoming().id == tripId;
+      allow update: if isAdmin() && isValidId(tripId) && isValidTrip(incoming()) && incoming().id == existing().id;
+      allow delete: if isAdmin() && isValidId(tripId);
+    }
+
+    match /photos/{photoId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(photoId) && isValidPhoto(incoming()) && incoming().id == photoId;
+      allow update: if isAdmin() && isValidId(photoId) && isValidPhoto(incoming()) && incoming().id == existing().id;
+      allow delete: if isAdmin() && isValidId(photoId);
+    }
+
+    match /videos/{videoId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(videoId) && isValidVideo(incoming()) && incoming().id == videoId;
+      allow update: if isAdmin() && isValidId(videoId) && isValidVideo(incoming()) && incoming().id == existing().id;
+      allow delete: if isAdmin() && isValidId(videoId);
+    }
+
+    match /stats/{statsId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(statsId) && isValidStats(incoming());
+      allow delete: if isAdmin() && isValidId(statsId);
+    }
+
+    match /drive_configurations/{driveId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(driveId) && isValidDriveConfig(incoming()) && incoming().id == driveId;
+      allow delete: if isSignedIn() && isValidId(driveId);
+    }
+
+    match /media_references/{referenceId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(referenceId) && isValidMediaReference(incoming()) && incoming().id == referenceId;
+      allow update: if isSignedIn() && isValidId(referenceId) && isValidMediaReference(incoming()) && incoming().id == existing().id;
+      allow delete: if isSignedIn() && isValidId(referenceId);
+    }
+  }
+}
