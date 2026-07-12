@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db, auth } from '../firebase/config'; // सिर्फ db और auth लिया
 import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { storageService } from '../services/storageService'; // आपकी पुरानी सर्विस वापस जोड़ दी!
+import storageService from '../services/storageService'; // आपकी पुरानी सर्विस वापस जोड़ दी!
 import { 
   PlusCircle, 
   Image as ImageIcon, 
