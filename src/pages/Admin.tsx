@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db, auth } from '../firebase/config';
 import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { storageService } from '../services/storageService'; // यहाँ सुधार कर दिया गया है!
+import * as storageService from '../services/storageService'; // वाइल्डकार्ड इम्पोर्ट से फिक्स कर दिया!
 import { 
   PlusCircle, 
   Image as ImageIcon, 
@@ -85,8 +85,8 @@ export default function Admin() {
   };
 
   const handleLogout = async () => { await auth.signOut(); navigate('/login'); };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
+
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!coverFile) {
       setStatusMessage({ type: 'error', text: 'Please select a cover image.' });
@@ -99,7 +99,7 @@ export default function Admin() {
       const uploadedPhotos: string[] = [];
       const uploadedVideos: string[] = [];
 
-      const uploadFn = storageService.uploadFile || (storageService as any).uploadImage || (storageService as any).upload;
+      const uploadFn = (storageService as any).uploadFile || (storageService as any).uploadImage || (storageService as any).upload || (storageService as any).default?.uploadFile;
       
       if (typeof uploadFn === 'function') {
         coverImageUrl = await uploadFn(coverFile, `trips/${slug}/cover`);
@@ -118,7 +118,7 @@ export default function Admin() {
       if (videoFiles && videoFiles.length > 0) {
         for (let i = 0; i < videoFiles.length; i++) {
           const file = videoFiles[i];
-          const uploadVidFn = storageService.uploadFile || (storageService as any).uploadVideo || uploadFn;
+          const uploadVidFn = (storageService as any).uploadVideo || uploadFn;
           if (typeof uploadVidFn === 'function') {
             const url = await uploadVidFn(file, `trips/${slug}/videos`);
             if (url) uploadedVideos.push(url);
@@ -250,7 +250,7 @@ export default function Admin() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1.5">TAGS *</label>
-                <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} required className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white" />
+                <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} required placeholder="Himalayas, Road Trip" className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white" />
               </div>
             </div>
             <div>
@@ -267,5 +267,5 @@ export default function Admin() {
       </div>
     </div>
   );
-      }
-                                                                                                                               
+              }
+            
