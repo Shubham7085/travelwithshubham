@@ -17,7 +17,7 @@ export default function Login() {
       const result = await signInWithPopup(auth, googleProvider);
       
       // शुभम, यहाँ अपनी सही ईमेल आईडी डालें जिससे आप लॉग इन करना चाहते हैं
-      if (result.user.email === 'your-email@gmail.com') { 
+      if (result.user.email === 'shubhamnagvanshi84823@gmail.com') { 
         navigate('/admin');
       } else {
         setError('Unauthorized: Only Shubham can access the admin panel.');
