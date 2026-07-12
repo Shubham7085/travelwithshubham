@@ -1,16 +1,27 @@
 import { initializeApp } from 'firebase/app';
-// 1. यहाँ GoogleAuthProvider को जोड़ें
-import { getAuth, GoogleAuthProvider } from 'firebase/auth'; // <-- यहाँ ध्यान दें
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseConfig from '@/firebase-applet-config.json';
+import { getStorage } from 'firebase/storage';
+
+// आपकी असली Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyA7mBhVBjKVoDWn7Haaxj-7cJ81raumD5k",
+  authDomain: "travelwithshubham-c9fa9.firebaseapp.com",
+  projectId: "travelwithshubham-c9fa9",
+  storageBucket: "travelwithshubham-c9fa9.firebasestorage.app",
+  messagingSenderId: "390059239223",
+  appId: "1:390059239223:web:676d41a95556de2ebadcb2",
+  measurementId: "G-M49MFEYNZF"
+};
 
 const app = initializeApp(firebaseConfig);
 const dbId = (firebaseConfig as any).firestoreDatabaseId;
 export const db = dbId && dbId !== '(default)' ? getFirestore(app, dbId) : getFirestore(app);
 export const auth = getAuth(app);
+export const storage = getStorage(app);
 
-// 2. गूगल प्रोवाइडर को यहाँ इनिशियलाइज़ करके एक्सपोर्ट करें
-export const googleProvider = new GoogleAuthProvider(); // <-- यहाँ ध्यान दें
+// गूगल प्रोवाइडर एक्सपोर्ट ताकि Login पेज इसका इस्तेमाल कर सके
+export const googleProvider = new GoogleAuthProvider();
 
 // Error handling required by the Firebase Integration Skill
 export enum OperationType {
@@ -115,3 +126,4 @@ async function testConnection() {
 
 testConnection();
 export default app;
+      
