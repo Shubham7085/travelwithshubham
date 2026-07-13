@@ -1,65 +1,72 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogIn, Shield } from 'lucide-react';
-import { auth, googleProvider } from '../firebase/config'; // सही config इम्पोर्ट करें
-import { signInWithPopup } from 'firebase/auth'; // Firebase auth से इम्पोर्ट करें
+import { useAuth } from '../firebase/context';
+import { LogIn, LogOut, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function Login() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { user, isAdmin, loginWithGoogle, logout, loading } = useAuth();
   const navigate = useNavigate();
 
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    setError('');
+  useEffect(() => {
+    if (user && isAdmin) {
+      navigate('/admin');
+    }
+  }, [user, isAdmin, navigate]);
+
+  const handleLogin = async () => {
     try {
-      // यहाँ पॉपअप ट्रिगर होगा
-      const result = await signInWithPopup(auth, googleProvider);
-      
-      // शुभम, यहाँ अपनी सही ईमेल आईडी डालें जिससे आप लॉग इन करना चाहते हैं
-      if (result.user.email === 'shubhamnagvanshi84823@gmail.com') { 
-        navigate('/admin');
-      } else {
-        setError('Unauthorized: Only Shubham can access the admin panel.');
-        await auth.signOut();
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Failed to sign in. Please try again.');
-    } finally {
-      setLoading(false);
+      await loginWithGoogle();
+    } catch (err) {
+      console.error('Login failed:', err);
     }
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 flex flex-col items-center justify-center px-4 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl text-center">
-        <div className="flex justify-center">
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400">
-            <Shield className="w-12 h-12" />
-          </div>
-        </div>
-        <div>
-          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Admin Portal</h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Only the portfolio owner (Shubham) has administrative write access.
-          </p>
+    <div className="pt-32 pb-24 px-4 flex items-center justify-center min-h-[80vh]" id="login-page-container">
+      <div className="bg-white/5 border border-white/10 rounded-[24px] p-8 md:p-12 backdrop-blur-md max-w-md w-full text-center shadow-[0_8px_32px_rgba(0,229,255,0.05)]">
+        <div className="w-16 h-16 bg-[#00E5FF]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+          <ShieldCheck className="w-8 h-8 text-[#00E5FF]" />
         </div>
 
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm text-left">
-            {error}
+        <h1 className="text-2xl md:text-3xl font-sans font-bold tracking-tight text-white mb-2">
+          Admin Portal
+        </h1>
+        <p className="text-gray-400 text-sm mb-8">
+          Only the portfolio owner (Shubham) has administrative write access.
+        </p>
+
+        {loading ? (
+          <div className="flex items-center justify-center space-x-2 text-gray-400 font-mono text-xs">
+            <div className="w-2 h-2 bg-[#00E5FF] rounded-full animate-ping" />
+            <span>Verifying Credentials...</span>
+          </div>
+        ) : !user ? (
+          <button
+            onClick={handleLogin}
+            className="w-full py-4 px-6 bg-gradient-to-r from-[#00E5FF] to-[#00B0FF] hover:opacity-90 active:scale-[0.98] transition-all text-[#050816] font-semibold rounded-2xl flex items-center justify-center gap-2 group shadow-[0_4px_20px_rgba(0,229,255,0.2)]"
+          >
+            <LogIn className="w-5 h-5" />
+            Sign In with Google
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </button>
+        ) : (
+          <div className="space-y-6">
+            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-left">
+              <p className="text-xs text-red-400 font-mono mb-1">Access Denied</p>
+              <p className="text-sm text-gray-300">
+                You are authenticated as <span className="text-[#00E5FF] font-semibold">{user.email}</span>. Only the portfolio owner has access.
+              </p>
+            </div>
+            
+            <button
+              onClick={() => logout()}
+              className="w-full py-3 px-6 bg-white/5 hover:bg-white/10 active:scale-[0.98] transition-all text-white border border-white/10 font-semibold rounded-2xl flex items-center justify-center gap-2"
+            >
+              <LogOut className="w-5 h-5" />
+              Sign Out / Switch Account
+            </button>
           </div>
         )}
-
-        <button
-          onClick={handleGoogleSignIn} // यहाँ सही फ़ंक्शन का नाम दें
-          disabled={loading}
-          className="w-full flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
-        >
-          <LogIn className="w-5 h-5 mr-2" />
-          {loading ? 'Connecting...' : 'Sign In with Google'}
-        </button>
       </div>
     </div>
   );
